@@ -41,25 +41,30 @@ void StateVisualiser::handleEvents(sf::RenderWindow &window) {
 }
 
 void StateVisualiser::setVisualiserData(const sf::Int16 *samples, std::size_t sampleCount) {
+    //Updating the samples array from the Recorder
     StateVisualiser::samples = samples;
     StateVisualiser::sampleCount = sampleCount;
 }
 
 void StateVisualiser::drawVisualiser(sf::RenderWindow &window, const sf::Int16 *samples, std::size_t sampleCount) {
-    //Width of a point
+    //Nb of points
     int stepsX = 4410;
-    float shapeSize = (float) windowSize.x / 1000.0f;
+    //Width of a point
+    float shapeSize = (float) windowSize.x / (float) stepsX;
+
+    //Only show half of the graph for more precision
+    float resize = 2.0f;
 
     sf::VertexArray lines(sf::LinesStrip, stepsX);
 
     for(int i = 0; i < stepsX; i++) {
-        int sampleId = (sampleCount / 2.0f / stepsX) * i;
+        int sampleId = (sampleCount / resize / stepsX) * i;
 
         lines[i].position = sf::Vector2f(i * shapeSize, windowSize.y / 2.0f + (samples[sampleId] / 32767.f) * (windowSize.y / 1.0f));
         lines[i].color = sf::Color::Red;
 
     }
-
+    //Draw the graph
     window.draw(lines);
 }
 
