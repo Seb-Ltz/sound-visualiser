@@ -28,9 +28,11 @@ private:
     sf::RectangleShape shape;
     Game *game;
 
-    std::size_t sampleCount;
+    std::size_t sampleCount = 0;
 
     const sf::Int16 *samples;
+
+    bool showFourrier = false;
 };
 
 
