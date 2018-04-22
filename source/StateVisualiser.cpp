@@ -19,14 +19,16 @@ StateVisualiser::StateVisualiser(sf::RenderWindow &window)
     shape.setFillColor(sf::Color::Red);
     recorder->setState(this);
     recorder->start();
+
+    soundArray = new sf::Int16[soundArrayLen];
 }
 
 void StateVisualiser::update() {
 
 }
 
-void StateVisualiser::render(sf::RenderWindow &window) {
-    drawVisualiser(window, samples, sampleCount);
+void StateVisualiser::render(sf::RenderWindow &window, float dt) {
+    drawVisualiser(window, samples, sampleCount, dt);
 }
 
 void StateVisualiser::handleEvents(sf::RenderWindow &window) {
@@ -46,11 +48,13 @@ void StateVisualiser::setVisualiserData(const sf::Int16 *samples, std::size_t sa
     //Updating the samples array from the Recorder
     StateVisualiser::samples = samples;
     StateVisualiser::sampleCount = sampleCount;
+
+    if(showSoundInput) {
+        handleSoundData(samples, sampleCount);
+    }
 }
 
-void StateVisualiser::drawVisualiser(sf::RenderWindow &window, const sf::Int16 *samples, std::size_t sampleCount) {
-    //Nb of points
-    int stepsX = 4410;
+void StateVisualiser::drawVisualiser(sf::RenderWindow &window, const sf::Int16 *samples, std::size_t sampleCount, float dt) {
 
     //Width of a point
     float shapeSize = (float) windowSize.x / (float) stepsX;
@@ -60,14 +64,20 @@ void StateVisualiser::drawVisualiser(sf::RenderWindow &window, const sf::Int16 *
 
     sf::VertexArray lines(sf::LinesStrip, stepsX);
 
-    if(!showFourrier) {
-        for(int i = 0; i < stepsX; i++) {
-            int sampleId = (sampleCount / resize / stepsX) * i;
+    if(showSoundInput) {
+        int soundWritePosId = (soundArrayWritePos) % soundArrayLen;
+        soundArrayTimePos = dt * stepsX * 0.1;
 
-            lines[i].position = sf::Vector2f(i * shapeSize, windowSize.y / 2.0f + (samples[sampleId] / 32767.f) * (windowSize.y / 1.0f));
+        for(int i = 0; i < stepsX; i++) {
+
+            lines[i].position = sf::Vector2f(i * shapeSize, windowSize.y / 2.0f + (soundArray[(soundWritePosId + i * soundLengthShown + soundArrayTimePos) % soundArrayLen] / 32767.f) * (windowSize.y / 2.0f));
             lines[i].color = sf::Color::Red;
         }
-    } else {
+
+        //Draw the graph
+        window.draw(lines);
+    }
+    if (showFourrier) {
 
         std::complex<double> X[sampleCount];                // storage for FFT answer
         for(int i = 0; i < sampleCount; i++) {
@@ -79,11 +89,13 @@ void StateVisualiser::drawVisualiser(sf::RenderWindow &window, const sf::Int16 *
             int sampleId = (sampleCount / resize / stepsX) * i;
 
             lines[i].position = sf::Vector2f(i * shapeSize, windowSize.y / 2.0f + (X[sampleId].real() / 32767.f) * (windowSize.y / 4.0f));
-            lines[i].color = sf::Color::Red;
+            lines[i].color = sf::Color::Yellow;
         }
+
+        //Draw the graph
+        window.draw(lines);
     }
-    //Draw the graph
-    window.draw(lines);
+
     if (showBinary)
     {
         sf::RectangleShape rs;
@@ -112,4 +124,16 @@ void StateVisualiser::drawVisualiser(sf::RenderWindow &window, const sf::Int16 *
 
 void StateVisualiser::setGame(Game *game) {
     StateVisualiser::game = game;
+}
+
+void StateVisualiser::handleSoundData(const sf::Int16 *samples, std::size_t sampleCount) {
+
+    for(int i = 0; i < stepsX; i++) {
+        int sampleId = (sampleCount / stepsX) * i;
+        soundArrayWritePos++;
+
+        //Add the new samples to the circular array
+        soundArray[(soundArrayWritePos) % soundArrayLen] = samples[sampleId];
+
+    }
 }

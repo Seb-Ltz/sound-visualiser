@@ -12,7 +12,7 @@ class StateVisualiser {
 public:
     StateVisualiser(sf::RenderWindow &window);
     void update();
-    void render(sf::RenderWindow &window);
+    void render(sf::RenderWindow &window, float dt);
     void handleEvents(sf::RenderWindow &window);
 
     void setGame(Game *game);
@@ -21,8 +21,8 @@ public:
 
 private:
 
-    void drawVisualiser(sf::RenderWindow &window, const sf::Int16 *samples, std::size_t sampleCount);
-
+    void drawVisualiser(sf::RenderWindow &window, const sf::Int16 *samples, std::size_t sampleCount, float dt);
+    void handleSoundData(const sf::Int16 *samples, std::size_t sampleCount);
     sf::Vector2u windowSize;
     Recorder* recorder = nullptr;
     sf::RectangleShape shape;
@@ -32,8 +32,17 @@ private:
 
     const sf::Int16 *samples;
 
-    bool showFourrier = false;
-    bool showBinary = false;
+    const bool showFourrier = false;
+    const bool showSoundInput = true;
+    const bool showBinary = false;
+
+    //Nb of points
+    const int stepsX = 4410;
+    const int soundLengthShown = 1; //Change this value if you want to see more on the soundInput graph
+    const int soundArrayLen = stepsX * soundLengthShown;
+    int soundArrayTimePos = 0;
+    int soundArrayWritePos = 0;
+    sf::Int16* soundArray;
 };
 
 

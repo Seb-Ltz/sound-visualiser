@@ -48,11 +48,3 @@ void Fourrier::fft2(complex<double>* X, int N) {
     }
 }
 
-void Fourrier::run(complex<double>* X, std::size_t sampleCount) {
-    double nSeconds = 0.1;                      // total time for sampling
-
-    // compute fft for this data
-    fft2(X,sampleCount);
-
-}
-

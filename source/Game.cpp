@@ -9,21 +9,22 @@ Game::Game()
     : window(sf::VideoMode(1280, 720), "State Visualiser")
     , state(window)
 {
-    window.setFramerateLimit(20);
+    window.setFramerateLimit(60);
 
     state.setGame(this);
 }
 
 void Game::run() {
-
+    sf::Clock clock;
     while (window.isOpen())
     {
+        float dt = clock.restart().asSeconds();
         state.handleEvents(window);
 
         state.update();
 
         window.clear();
-        state.render(window);
+        state.render(window, dt);
         window.display();
     }
 
