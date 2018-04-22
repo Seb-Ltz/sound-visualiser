@@ -33,6 +33,7 @@ private:
     const sf::Int16 *samples;
 
     bool showFourrier = false;
+    bool showBinary = false;
 };
 
 

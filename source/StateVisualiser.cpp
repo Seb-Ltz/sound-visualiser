@@ -51,6 +51,7 @@ void StateVisualiser::setVisualiserData(const sf::Int16 *samples, std::size_t sa
 void StateVisualiser::drawVisualiser(sf::RenderWindow &window, const sf::Int16 *samples, std::size_t sampleCount) {
     //Nb of points
     int stepsX = 4410;
+
     //Width of a point
     float shapeSize = (float) windowSize.x / (float) stepsX;
 
@@ -83,6 +84,30 @@ void StateVisualiser::drawVisualiser(sf::RenderWindow &window, const sf::Int16 *
     }
     //Draw the graph
     window.draw(lines);
+    if (showBinary)
+    {
+        sf::RectangleShape rs;
+        rs.setSize(sf::Vector2f(10, 10));
+        rs.setFillColor(sf::Color::Red);
+
+        window.draw(rs);
+        if (recorder->val)
+            rs.setFillColor(sf::Color::Green);
+        rs.setPosition(0, 10);
+        window.draw(rs);
+        rs.setSize(sf::Vector2f(1, 10));
+        for (int i = 0; i < 19800; i++)
+        {
+            rs.setFillColor(sf::Color::Red);
+            if (recorder->lastVals[i])
+                rs.setFillColor(sf::Color::Green);
+            if (i == recorder -> valsPtr)
+                rs.setFillColor(sf::Color::Blue);
+            rs.setPosition(i % 1980, i / 1980 * 10);
+            window.draw(rs);
+        }
+    }
+
 }
 
 void StateVisualiser::setGame(Game *game) {
